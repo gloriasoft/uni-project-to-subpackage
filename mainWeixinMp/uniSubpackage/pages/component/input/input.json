@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "input",
+  "usingComponents": {
+    "page-head": "/components/page-head"
+  }
+}

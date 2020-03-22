@@ -1,0 +1,1 @@
+<view class="page-share-title"><text>{{"感谢"+name+"提供本示例，"}}</text><text data-event-opts="{{[['tap',[['submit',['$event']]]]]}}" class="submit" bindtap="__e">我也提交</text></view>

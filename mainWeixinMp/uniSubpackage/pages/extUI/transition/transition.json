@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "uni-section": "/components/uni-section/uni-section",
+    "uni-transition": "/components/uni-transition/uni-transition"
+  }
+}

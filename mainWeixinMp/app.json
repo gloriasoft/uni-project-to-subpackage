@@ -1,0 +1,20 @@
+{
+  "pages": [
+    "uniSubpackage/pages/API/file/file",
+    "pages/index/index",
+    "pages/logs/logs"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "WeChat",
+    "navigationBarTextStyle": "black"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "usingComponents": {
+    "page-head": "/uniSubpackage/components/page-head",
+    "page-foot": "/uniSubpackage/components/page-foot",
+    "u-link": "/uniSubpackage/components/uLink"
+  }
+}

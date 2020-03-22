@@ -1,0 +1,121 @@
+<template>
+	<div class="wrapper">
+		<text class="title">{{title}}</text>
+		<scroller class="scroller">
+			<div>
+				<text class="content">{{content}}</text>
+			</div>
+			<div>
+				<text style="color: red; font-size: 30upx;">以下为 Popup 内部滚动示例：</text>
+			</div>
+			<div class="cell" v-for="(item, index) in lists" @click="handle(item)" :key="index">
+				<text class="text">{{item}}</text>
+			</div>
+		</scroller>
+		<div class="message-wrapper">
+			<text class="send-message" @click="sendMessage">向页面发送消息</text>
+		</div>
+	</div>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				title: '',
+				content: '',
+				lists: [],
+			}
+		},
+		created() {
+			const vm = this;
+			for (let i = 1; i < 20; i++) {
+				this.lists.push('item' + i);
+			}
+			uni.$on('page-popup', (data) => {
+				vm.title = data.title;
+				vm.content = data.content;
+			})
+		},
+		beforeDestroy() {
+			uni.$off('drawer-page')
+		},
+		methods: {
+			sendMessage() {
+				const subNVue = uni.getCurrentSubNVue()
+				uni.$emit('popup-page', {
+					title: '已读完!',
+				})
+			},
+			handle(item, index) {
+				const subNVue = uni.getCurrentSubNVue()
+				uni.$emit('popup-page', {
+					type: 'interactive',
+					info: item + ' 该元素被点击了!',
+				})
+			}
+		}
+	}
+</script>
+
+<style>
+	.wrapper {
+		flex-direction: column;
+		justify-content: space-between;
+		padding: 10upx 15upx;
+		background-color: #F4F5F6;
+		border-radius: 4upx;
+	}
+
+	.title {
+		height: 100upx;
+		line-height: 100upx;
+		border-bottom-style: solid;
+		border-bottom-width: 1upx;
+		border-bottom-color: #CBCBCB;
+		flex: 0;
+		font-size: 30upx;
+	}
+
+	.scroller {
+		height: 400upx;
+		padding: 8upx 15upx;
+	}
+
+	.content {
+		color: #555555;
+		font-size: 32upx;
+	}
+
+	.message-wrapper {
+		flex: 0;
+		border-top-style: solid;
+		border-top-width: 1upx;
+		border-top-color: #CBCBCB;
+		height: 80upx;
+		align-items: flex-end;
+	}
+
+	.send-message {
+		font-size: 30upx;
+		line-height: 80upx;
+		color: #00CE47;
+		margin-left: 20upx;
+	}
+
+	.cell {
+		margin: 10upx;
+		padding: 20upx 0;
+		top: 10upx;
+		align-items: center;
+		justify-content: center;
+		border-radius: 10upx;
+		background-color: #5989B9;
+	}
+
+	.text {
+		font-size: 30upx;
+		text-align: center;
+		color: white;
+	}
+</style>

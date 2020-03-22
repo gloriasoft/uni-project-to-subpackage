@@ -1,0 +1,3 @@
+[submodule "main_mp"]
+	path = main_mp
+	url = ../adcloud-mp.git
