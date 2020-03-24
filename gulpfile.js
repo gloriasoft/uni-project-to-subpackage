@@ -318,13 +318,10 @@ gulp.task('subMode:createUniSubPackage',async function(done){
         }))
         .pipe(filterJson.restore)
         .pipe(filterWxss)
-        .pipe($.if(env === 'build',$.cleanCss({
-            inline:['none']
-        })))
         .pipe($.replace(/(}|^|\s)__uniWxss\s*{([^{}]+)}/g,function(match,p1,p2){
             let str=''
             let pathLevel=getLevel(this.file.relative)
-            p2.replace(/\s*import\s*:\s*([^\s]*;)/g,function(match,p1){
+            ;(p2+';').replace(/\s*import\s*:\s*([^\s]*;)/g,function(match,p1){
                 str+=`@import ${p1.replace(/@wxResource\//g,getLevelPath(pathLevel))}`
             })
             return p1+str
@@ -368,34 +365,46 @@ gulp.task('subMode:copyWxResource',function(){
         .pipe(gulp.dest(subModePath));
 })
 
+function buildProcess(){
+    let tasks=['subMode:createUniSubPackage','subMode:copyWxResource','watch:baseAppJson','watch:pagesJson','watch:mainAppJson','watch:mainWeixinMp']
+    if(env === 'build'){
+        // 同步处理
+        return gulp.series.apply(this,tasks)
+    }else{
+        // 异步处理
+        return gulp.parallel.apply(this,tasks)
+    }
+}
 
 gulp.task('mpWxSubMode',gulp.series(function(done){
     subModePath = path.resolve(__dirname, target, projectToSubPackageConfig.subPackagePath)
     console.log('对uni-app进行解耦构建，解除uni-app对原生小程序方法的改写，此过程如果出现权限问题，请使用管理员权限运行')
     done()
-},'clean:previewDist', async function(done){
+},'clean:previewDist',
+// 创建pack.config.js
+async function(done){
     await fs.outputFile(subModePath+'/pack.config.js', `module.exports={packPath:'/${projectToSubPackageConfig.subPackagePath}'}`)
     done()
-}, gulp.parallel('subMode:createUniSubPackage','subMode:copyWxResource','watch:pagesJson','watch:baseAppJson','watch:mainAppJson','watch:mainWeixinMp'),function(done){
-    if(env === 'build'){
-        return  gulp.src([base+'/app.json'],{base,allowEmpty: true})
-            .pipe(gulp.dest(target));
-    }else{
-        done()
-    }
-},function(done){
+},
+buildProcess(),
+function(done){
     done()
     if(env === 'build'){
         process.exit()
     }
 }))
 
-gulp.task('startToPackServe',gulp.series(async function(done){
+gulp.task('startToPackServe',gulp.series(
+// 初始化
+async function(done){
     if(!(await (fs.exists(base)))){
         await (fs.mkdirs(base))
     }
     done()
-},'clean:base',function(done){
+},'clean:base',
+// 通过判断普通uni构建目录的app.json来识别是否完成了uni的第一次构建
+function(done){
+    // 使用原生的watch是为了只监听一次
     gulp.watch(base+'/app.json',{events:['all']}, function(){
         done()
     })

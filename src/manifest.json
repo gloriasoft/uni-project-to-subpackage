@@ -1,4 +1,7 @@
 {
+    "uniStatistics":{
+        "enable": false
+    },
     "name" : "hello uni-app",
     "appid" : "",
     "description" : "应用描述",

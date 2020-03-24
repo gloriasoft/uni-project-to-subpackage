@@ -46,8 +46,8 @@
 <style>
 	/*引入原生微信小程序wxss*/
 	__uniWxss{
-		@import: '@wxResource/nativePage/index.wxss';
-		@import: '@wxResource/nativeCommon/test.wxss';
+		import: '@wxResource/nativePage/index.wxss';
+		import: '@wxResource/nativeCommon/test.wxss';
 	}
 
 	page,
