@@ -1,3 +1,14 @@
+/*
+* 作者devilwjp
+* 2019年7月
+*
+* 对uni-app在微信小程序的打包方案进行改造，形成解耦打包，并且支持微信原生页面直接在uni-app项目中使用
+* 1.可以使项目输出微信小程序的分包，被其他小程序项目使用
+* 2.支持微信原生页面直接在uni-app项目中使用（还支持任何原生的js、wxss在uni-app项目中使用）
+* 3.支持原生小程序项目直接在uni-app项目中进行开发，当uni-app的解耦包是主包时，uni-app包可以通过globalData进行方法公开，被原生小程序的其他页面和分包使用
+* 4.支持uni-app项目调用原生小程序项目中的资源
+*
+* */
 const gulp = require('gulp')
 const del=require('del')
 const $ = require('gulp-load-plugins')()
@@ -5,19 +16,31 @@ const path= require('path')
 const fs = require('fs-extra')
 const stripJsonComments = require('strip-json-comments')
 const rfr = require('read-file-relative').readSync
-// const prompt = require('prompt');
 const strip = require('gulp-strip-comments')
 const projectToSubPackageConfig = require('./projectToSubPackageConfig')
+const readline = require('readline');
 
 let env='dev'
-if(process.env.NODE_ENV=='production'){
+if(process.env.NODE_ENV === 'production'){
     env='build'
 }
 
 const base='dist/'+env+'/mp-weixin'
-const target='dist/'+env+'/mp-weixin-weimob'
+const target='dist/'+env+'/mp-weixin-subpackage-project'
 const basePath=path.resolve(__dirname,base)
 let subModePath
+let writeTimer
+function writeLastLine(val) {
+    // readline.clearLine(process.stdout);
+    readline.cursorTo(process.stdout, 0);
+    process.stdout.write(val);
+    clearTimeout(writeTimer)
+    writeTimer=setTimeout(()=>{
+        readline.clearLine(process.stdout);
+        readline.cursorTo(process.stdout, 0);
+        process.stdout.write('解耦构建，正在监听中......(此过程如果出现权限问题，请使用管理员权限运行)');
+    },1000)
+}
 
 function getLevelPath(level){
     let arr=Array(level)
@@ -30,113 +53,222 @@ function getLevel(relative){
 function uniRequireWxResource(){
     return $.replace(/__uniRequireWx\(([a-zA-Z.\/"'@\d]+)\)/g,function(match, p1, offset, string){
         let pathLevel=getLevel(this.file.relative)
-        console.log(`编译${match}-->require(${p1.replace(/@wxResource\//g,getLevelPath(pathLevel))})`)
+        console.log(`\n编译${match}-->require(${p1.replace(/@wxResource\//g,getLevelPath(pathLevel))})`)
         return `require(${p1.replace(/@wxResource\//g,getLevelPath(pathLevel))})`
     },{
         skipBinary:false
     })
 }
 
-function replaceWxPagesConfig(){
+function mergeToTargetJson(type){
+    // console.log('处理app.json')
+    writeLastLine('处理app.json......')
     return $.replace(/[\s\S]+/,function(match){
-        let config=JSON.parse(stripJsonComments(match))
-        let appJson=JSON.parse(rfr(base+'/app.json'))
-        if(config.wxResource){
-            if(config.wxResource.pages){
-                appJson.pages=Array.from(new Set([...(config.indexPage?[config.indexPage]:[]),...appJson.pages,...config.wxResource.pages]))
-            }
-            if(config.wxResource.subPackages){
-                let subPackageMap={}
-                if(appJson.subPackages){
-                    appJson.subPackages.forEach((subPackage,index)=>{
-                        subPackageMap[subPackage.root]=subPackage
-                    })
+        let config, appJson, mainJson, targetJson={}
+        let typeMap={
+            pagesJson(){
+                try{
+                    config=JSON.parse(stripJsonComments(match))
+                }catch(e){
+                    config={}
                 }
-                config.wxResource.subPackages.forEach((subPackage,index)=>{
-                    subPackageMap[subPackage.root]=subPackage
-                })
-                let subPackages=[]
-                for(var i in subPackageMap){
-                    subPackages.push(subPackageMap[i])
+
+            },
+            baseAppJson(){
+                try{
+                    appJson=JSON.parse(match)
+                }catch(e){
+                    appJson={}
                 }
-                appJson.subPackages=subPackages
+            },
+            mainAppJson(){
+                try{
+                    mainJson=JSON.parse(match)
+                }catch(e){
+                    mainJson={}
+                }
             }
         }
-        return JSON.stringify(appJson)
+        typeMap[type]()
+        try{
+            if(!config){
+                config=JSON.parse(stripJsonComments(rfr('src/pages.json')))
+            }
+        }catch(e){
+            config={}
+        }
+        try{
+            if(!appJson){
+                appJson=JSON.parse(rfr(base+'/app.json'))
+            }
+        }catch(e){
+            appJson={}
+        }
+        try{
+            if(!mainJson){
+                mainJson=JSON.parse(rfr(projectToSubPackageConfig.mainWeixinMpPath+'/app.json'))
+            }
+        }catch(e){
+            mainJson={}
+        }
+        // 处理subpackage路径拼接
+        function addSubPackagePath(pagePath){
+            return projectToSubPackageConfig.subPackagePath+'/'+pagePath
+        }
+
+        if(appJson.pages){
+            appJson.pages.forEach((pagePath, index)=>{
+                appJson.pages[index]=addSubPackagePath(pagePath)
+            })
+        }
+
+        if(appJson.subPackages){
+            appJson.subPackages.forEach((subPackage)=>{
+                subPackage.root=addSubPackagePath(subPackage.root)
+            })
+        }
+
+        if(config.wxResource){
+            if(config.wxResource.pages){
+                config.wxResource.pages.forEach((pagePath, index)=>{
+                    config.wxResource.pages[index]=addSubPackagePath(pagePath)
+                })
+            }
+
+            if(config.wxResource.subPackages){
+                config.wxResource.subPackages.forEach((subPackage)=>{
+                    subPackage.root=addSubPackagePath(subPackage.root)
+                })
+            }
+        }
+
+        // tabBar
+        if(appJson.tabBar && appJson.tabBar.list){
+            appJson.tabBar.list.forEach(({pagePath, iconPath, selectedIconPath, ...others}, index)=>{
+                appJson.tabBar.list[index]={
+                    pagePath: pagePath ? addSubPackagePath(pagePath) : '',
+                    iconPath: iconPath ? addSubPackagePath(iconPath) : '',
+                    selectedIconPath: selectedIconPath ? addSubPackagePath(selectedIconPath) : '',
+                    ...others
+                }
+            })
+        }
+
+        // merge all first
+        targetJson= {
+            ...appJson,
+            ...mainJson
+        }
+
+        // merge pages
+        targetJson.pages=Array.from(new Set([
+                ...(config.indexPage ? [addSubPackagePath(config.indexPage)] : []),
+                ...mainJson.pages || [],
+                ...appJson.pages || [],
+                ...config.wxResource && config.wxResource.pages || []
+            ]
+        ))
+
+        // merge subPackages
+        targetJson.subPackages=[
+            ...config.wxResource && config.wxResource.subPackages || [],
+            ...appJson.subPackages || [],
+            ...mainJson.subPackages || []
+        ]
+
+        // usingComponents
+        if(appJson.usingComponents){
+            for(let i in appJson.usingComponents){
+                appJson.usingComponents[i] = '/' + projectToSubPackageConfig.subPackagePath + appJson.usingComponents[i]
+            }
+            targetJson.usingComponents={
+                ...targetJson.usingComponents || {},
+                ...appJson.usingComponents
+            }
+        }
+        return JSON.stringify(targetJson)
     },{
         skipBinary:false
     })
 }
 
-function replaceApp(){
-    return $.replace(/[\s\S]+/,function(match){
-        let config=JSON.parse(stripJsonComments(rfr('src/pages.json')))
-        let appJson=JSON.parse(match)
-        if(config.wxResource){
-            if(config.wxResource.pages){
-                appJson.pages=Array.from(new Set([...(config.indexPage?[config.indexPage]:[]),...appJson.pages,...config.wxResource.pages]))
-            }
-            if(config.wxResource.subPackages){
-                let subPackageMap={}
-                if(appJson.subPackages){
-                    appJson.subPackages.forEach((subPackage,index)=>{
-                        subPackageMap[subPackage.root]=subPackage
-                    })
-                }
-                config.wxResource.subPackages.forEach((subPackage,index)=>{
-                    subPackageMap[subPackage.root]=subPackage
-                })
-                let subPackages=[]
-                for(var i in subPackageMap){
-                    subPackages.push(subPackageMap[i])
-                }
-                appJson.subPackages=subPackages
-            }
-        }
-        return JSON.stringify(appJson)
-    },{
-        skipBinary:false
-    })
-}
-
-gulp.task('clean:loc',function(done){
-    del.sync([target],{force:true})
+gulp.task('clean:base',async function(done){
+    await del([base+'/**/*'])
     done()
 });
 
-gulp.task('clean:subModePath',function(done){
-    del.sync([subModePath],{force:true})
+gulp.task('clean:subModePath',async function(done){
+    await del([subModePath+'/**/*'])
     done()
 });
 
-gulp.task('watchSrcPages',function(){
+gulp.task('clean:previewDist',async function(done){
+    await del([target+'/**/*'])
+    done()
+});
+
+gulp.task('watch:pagesJson',function(){
     return gulp.src('src/pages.json',{base:'src',allowEmpty:true})
-        .pipe($.watch('src/pages.json'))
-        .pipe(replaceWxPagesConfig())
+        .pipe($.if(env==='dev',$.watch('src/pages.json',{base:'src'},function(event){
+            // console.log('处理'+event.path)
+            writeLastLine('处理'+event.path+'......')
+        })))
+        .pipe(mergeToTargetJson('pagesJson'))
         .pipe($.rename('app.json'))
         .pipe(gulp.dest(target))
 })
 
-gulp.task('watchDistApp',function(){
+gulp.task('watch:baseAppJson',function(){
     return gulp.src(base+'/app.json',{base,allowEmpty:true})
-        .pipe($.watch(base+'/app.json',{base}))
-        .pipe(replaceApp())
+        .pipe($.if(env==='dev',$.watch(base+'/app.json',{base},function(event){
+            // console.log('处理'+event.path)
+            writeLastLine('处理'+event.path+'......')
+        })))
+        .pipe(mergeToTargetJson('baseAppJson'))
         .pipe(gulp.dest(target))
 })
 
-gulp.task('subMode:createUniSubPackage',function(done){
-    fs.mkdirsSync(base)
+gulp.task('watch:mainAppJson',function(){
+    let base=projectToSubPackageConfig.mainWeixinMpPath
+    return gulp.src(base+'/app.json',{base,allowEmpty:true})
+        .pipe($.if(env==='dev',$.watch(base+'/app.json',{base},function(event){
+            // console.log('处理'+event.path)
+            writeLastLine('处理'+event.path+'......')
+        })))
+        .pipe(mergeToTargetJson('mainAppJson'))
+        .pipe(gulp.dest(target))
+})
+
+gulp.task('watch:mainWeixinMp',function(){
+    let base=projectToSubPackageConfig.mainWeixinMpPath
+    let basePackPath=base+'/'+projectToSubPackageConfig.subPackagePath
+    return gulp.src([base+'/**/*','!'+base+'/app.json','!'+basePackPath+'/**/*'],{base, allowEmpty: true})
+        .pipe($.if(env==='dev',$.watch([base+'/**/*','!'+base+'/app.json','!'+base+'/**/*.*___jb_tmp___','!'+basePackPath+'/**/*'],{base},function(event){
+            // console.log('处理'+event.path)w
+            writeLastLine('处理'+event.path+'......')
+        })))
+        .pipe(gulp.dest(target));
+})
+
+
+gulp.task('subMode:createUniSubPackage',async function(done){
+    await (fs.mkdirs(base))
     let f=$.filter([base+'/common/vendor.js',base+'/common/main.js',base+'/common/runtime.js',base+'/pages/**/*.js'],{restore:true})
     let filterVendor=$.filter([base+'/common/vendor.js'],{restore:true})
     let filterJs=$.filter([base+'/**/*.js','!'+base+'/common/vendor.js','!'+base+'/common/main.js','!'+base+'/common/runtime.js'],{restore:true})
     let filterWxss=$.filter([base+'/**/*.wxss'],{restore:true})
     let filterJson=$.filter([base+'/**/*.json'],{restore:true})
-    let filterWxml=$.filter([base+'/**/*.wxml'],{restore:true})
+    // let filterWxml=$.filter([base+'/**/*.wxml'],{restore:true})
     return gulp.src([base+'/**',base,'!'+base+'/*.*'],{base,allowEmpty:true})
-        .pipe($.if(env=='dev',$.watch([base+'/**',base,'!'+base+'/*.*'],{base})))
-        .pipe($.filter(function(file){
-            if(file.event=='unlink'){
-                del.sync([file.path.replace(basePath,path.resolve(__dirname,subModePath))],{force:true})
+        .pipe($.if(env==='dev',$.watch([base+'/**',base,'!'+base+'/*.*'],{base},function(event){
+            // console.log('处理'+event.path)
+            writeLastLine('处理'+event.path+'......')
+        })))
+        .pipe($.filter(async function(file){
+            if(file.event === 'unlink'){
+                try{
+                    await del([file.path.replace(basePath,path.resolve(__dirname,subModePath))],{force:true})
+                }catch(e){}
                 return false
             }else{
                 return true
@@ -168,7 +300,7 @@ gulp.task('subMode:createUniSubPackage',function(done){
         .pipe(filterJs.restore)
         .pipe(filterJson)
         .pipe($.replace(/[\s\S]*/,function(match){
-            if(!fs.existsSync('./src/'+this.file.relative.replace(/json$/,'vue'))){
+            if(!fs.existsSync('./src/'+this.file.relative.replace(/json$/,'vue')) && !fs.existsSync('./src/'+this.file.relative.replace(/json$/,'nvue'))){
                 return match
             }
             let json=JSON.parse(this.file.contents.toString())
@@ -183,7 +315,7 @@ gulp.task('subMode:createUniSubPackage',function(done){
         }))
         .pipe(filterJson.restore)
         .pipe(filterWxss)
-        .pipe($.if(env=='build',$.cleanCss({
+        .pipe($.if(env === 'build',$.cleanCss({
             inline:['none']
         })))
         .pipe($.replace(/(}|^|\s)__uniWxss\s*{([^{}]+)}/g,function(match,p1,p2){
@@ -199,10 +331,9 @@ gulp.task('subMode:createUniSubPackage',function(done){
         .pipe($.replace(/^[\s\S]*$/,function(match){
             let pathLevel=getLevel(this.file.relative)
             let mainWxss=`@import ${'"@wxResource/common/main.wxss";'.replace(/@wxResource\//g,getLevelPath(pathLevel))}`
-            // let result=`@import ${'"@wxResource/common/formid.wxss";'.replace(/@wxResource\//g,getLevelPath(pathLevel))}\n${match}`
-            let result = ''
+            let result=`\n${match}`
             if(!this.file.relative.match(/^common[\\/]+main.wxss/i)){
-                result=mainWxss
+                result=mainWxss+result
             }
             return result
         },{
@@ -213,11 +344,19 @@ gulp.task('subMode:createUniSubPackage',function(done){
 })
 
 gulp.task('subMode:copyWxResource',function(){
-    return gulp.src(['src/wxResource/**','src/wxResource'],{base:'src/wxResource',allowEmpty: true})
-        .pipe($.if(env=='dev',$.watch(['src/wxResource/**','src/wxResource'],{base:'src/wxResource'})))
-        .pipe($.filter(function(file){
-            if(file.event=='unlink'){
-                del.sync([file.path.replace(path.resolve(__dirname,'src/wxResource'),path.resolve(__dirname,subModePath))],{force:true})
+    let filterJs=$.filter(['src/wxresource/**/*.js'],{restore:true})
+    return gulp.src(['src/wxresource/**','src/wxresource'],{base:'src/wxresource',allowEmpty: true})
+        .pipe($.if(env === 'dev',$.watch(['src/wxresource/**','src/wxresource','!src/wxresource/**/*.*___jb_tmp___'],{base:'src/wxresource'},function(event){
+            // console.log('处理'+event.path)
+            writeLastLine('处理'+event.path+'......')
+        })))
+        .pipe(filterJs)
+        .pipe(strip())
+        .pipe(uniRequireWxResource())
+        .pipe(filterJs.restore)
+        .pipe($.filter(async function(file){
+            if(file.event === 'unlink'){
+                await del([file.path.replace(path.resolve(__dirname,'src/wxresource'),path.resolve(__dirname,subModePath))],{force:true})
                 return false
             }else{
                 return true
@@ -228,26 +367,33 @@ gulp.task('subMode:copyWxResource',function(){
 
 
 gulp.task('mpWxSubMode',gulp.series(function(done){
-    try{
-        subModePath = path.resolve(__dirname, projectToSubPackageConfig.mainWeixinMpPath, projectToSubPackageConfig.subPackagePath)
-        console.log(subModePath,'xxxxxxxxxxxxxxx')
-    }catch(e){
-        throw Error('\n\033[45;37m mainMpConfig.js不存在\n\033[37m如果是首次启动项目\n\033[37m请在项目根目录手动创建subModeConfig.js文件,并且使用\n\033[37mmodule.exports={path:"目标小程序的分包目录"}\n\033[37m并且为path设置小程序的分包目\n\033[41;37m并且目录不能错，否则该目录将被强制删除!!!!!! \033[0m')
-    }
-    console.log('等待uni-app进入编译状态，10秒左右之后将进行二次编译，如果遇到没有权限的错误，请调整等待时长')
-    //延迟10秒再运行，等待uni-app先进入打包状态
-    setTimeout(done,10000)
-    // done()
-},'clean:subModePath',gulp.parallel('subMode:createUniSubPackage','subMode:copyWxResource'),function(done){
-    if(env=='build'){
+    subModePath = path.resolve(__dirname, target, projectToSubPackageConfig.subPackagePath)
+    console.log('对uni-app进行解耦构建，解除uni-app对原生小程序方法的改写，此过程如果出现权限问题，请使用管理员权限运行')
+    done()
+},'clean:previewDist', async function(done){
+    await fs.outputFile(subModePath+'/pack.config.js', `module.exports={packPath:'/${projectToSubPackageConfig.subPackagePath}'}`)
+    done()
+}, gulp.parallel('subMode:createUniSubPackage','subMode:copyWxResource','watch:pagesJson','watch:baseAppJson','watch:mainAppJson','watch:mainWeixinMp'),function(done){
+    if(env === 'build'){
         return  gulp.src([base+'/app.json'],{base,allowEmpty: true})
-            .pipe(gulp.dest(subModePath));
+            .pipe(gulp.dest(target));
     }else{
         done()
     }
 },function(done){
     done()
-    if(env=='build'){
+    if(env === 'build'){
         process.exit()
     }
 }))
+
+gulp.task('startToPackServe',gulp.series(async function(done){
+    if(!(await (fs.exists(base)))){
+        await (fs.mkdirs(base))
+    }
+    done()
+},'clean:base',function(done){
+    gulp.watch(base+'/app.json',{events:['all']}, function(){
+        done()
+    })
+},'mpWxSubMode'))

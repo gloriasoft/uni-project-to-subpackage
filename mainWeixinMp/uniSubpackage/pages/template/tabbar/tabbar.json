@@ -1,6 +1,0 @@
-{
-  "navigationBarTitleText": "可拖动顶部选项卡",
-  "usingComponents": {
-    "media-item": "/pages/template/tabbar/news-item"
-  }
-}

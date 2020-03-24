@@ -19,8 +19,8 @@
     "dev:mp-qq": "cross-env NODE_ENV=development UNI_PLATFORM=mp-qq vue-cli-service uni-build --watch",
     "dev:mp-toutiao": "cross-env NODE_ENV=development UNI_PLATFORM=mp-toutiao vue-cli-service uni-build --watch",
     "dev:mp-weixin": "cross-env NODE_ENV=development UNI_PLATFORM=mp-weixin vue-cli-service uni-build --watch",
-    "dev:mp-weixin-subpackage": "concurrently \"npm run dev:mp-weixin\" \"cross-env NODE_ENV=development gulp mpWxSubMode\"",
-    "build:mp-weixin-subpackage": "cross-env NODE_ENV=production npm run build:mp-weixin && cross-env NODE_ENV=production gulp mpWxSubMode",
+    "dev:mp-weixin-pack": "concurrently \"npm run dev:mp-weixin\" \"cross-env NODE_ENV=development gulp startToPackServe\"",
+    "build:mp-weixin-pack": "cross-env NODE_ENV=production npm run build:mp-weixin && cross-env NODE_ENV=production gulp mpWxSubMode",
     "info": "node node_modules/@dcloudio/vue-cli-plugin-uni/commands/info.js"
   },
   "dependencies": {
@@ -31,9 +31,7 @@
     "@dcloudio/uni-mp-qq": "latest",
     "@dcloudio/uni-mp-toutiao": "latest",
     "@dcloudio/uni-mp-weixin": "latest",
-    "deepmerge": "^4.2.2",
     "flyio": "^0.6.2",
-    "merge": "^1.2.1",
     "regenerator-runtime": "^0.12.1",
     "vue": "^2.6.10",
     "vuex": "^3.0.1"

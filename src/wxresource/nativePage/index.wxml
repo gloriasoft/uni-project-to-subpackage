@@ -1,0 +1,6 @@
+<!--index.wxml-->
+<view class="container">
+  这是一个原生页面，我们将此页面直接放在uni的项目中使用，而不是通过原生项目使用<br/>
+  要在uni项目中使用原生的页面和其他资源（js和wxss等），需要将资源放在src/wxresource目录里<br/>
+  并且在pages.json里配置wxResource的pages
+</view>

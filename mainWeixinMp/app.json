@@ -1,6 +1,5 @@
 {
   "pages": [
-    "uniSubpackage/pages/API/file/file",
     "pages/index/index",
     "pages/logs/logs"
   ],
@@ -12,9 +11,17 @@
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json",
-  "usingComponents": {
-    "page-head": "/uniSubpackage/components/page-head",
-    "page-foot": "/uniSubpackage/components/page-foot",
-    "u-link": "/uniSubpackage/components/uLink"
+  "tabBar": {
+    "list": [{
+      "pagePath": "pages/index/index",
+      "text": "原生主项目页面",
+      "iconPath": "uniSubpackage/static/uni.png",
+      "selectedIconPath": "uniSubpackage/static/uni.png"
+    }, {
+      "pagePath": "uniSubpackage/pages/about/about",
+      "text": "uni项目页面",
+      "iconPath": "uniSubpackage/static/uni.png",
+      "selectedIconPath": "uniSubpackage/static/uni.png"
+    }]
   }
 }
