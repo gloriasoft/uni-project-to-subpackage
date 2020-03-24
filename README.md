@@ -91,9 +91,9 @@ const {nativeRestObject} =  __uniRequireWx('@wxResource/nativeJs/test')
 在uni-app项目的源码目录中的vue、scss、less文件中引入原生的微信小程序wxss资源(类似@import 'xxxxxx'),往往会配合目录别名@wxResource  
 ````css
 __uniWxss{
-    import: '@wxResource/nativeWxss/1.wxss';
-    import: '@wxResource/nativeWxss/2.wxss';
-    import: '@wxResource/nativeWxss/3.wxss';
+    @import: '@wxResource/nativeWxss/1.wxss';
+    @import: '@wxResource/nativeWxss/2.wxss';
+    @import: '@wxResource/nativeWxss/3.wxss';
 }
 ````
 #### @wxResource  
