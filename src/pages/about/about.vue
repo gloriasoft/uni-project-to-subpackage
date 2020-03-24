@@ -19,8 +19,8 @@
 
 <script>
 	// 引入原生微信小程序资源（什么都可以引）
-	let nativeJsTest=__uniRequireWx('@wxResource/natvieJs/test').default
-	console.log(nativeJsTest)
+	let {packPath} =__uniRequireWx('@wxResource/pack.config.js')
+
 	export default {
 		components: {
 		},
@@ -36,7 +36,7 @@
 		methods: {
 		    toNative(){
 		        uni.navigateTo({
-					url:'../../nativePage/index'
+					url:packPath+'/nativePage/index'
 				})
 			}
 		}
