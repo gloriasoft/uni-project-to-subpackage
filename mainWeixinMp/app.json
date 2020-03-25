@@ -18,10 +18,14 @@
       "iconPath": "uniSubpackage/static/uni.png",
       "selectedIconPath": "uniSubpackage/static/uni.png"
     }, {
-      "pagePath": "uniSubpackage/pages/about/about",
+      "pagePath": "pages/index/index",
       "text": "uni项目页面",
       "iconPath": "uniSubpackage/static/uni.png",
       "selectedIconPath": "uniSubpackage/static/uni.png"
     }]
-  }
+  },
+  "subPackages":[{
+    "root":"uniSubpackage",
+    "pages":[]
+  }]
 }

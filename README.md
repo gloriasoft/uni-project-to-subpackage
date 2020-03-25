@@ -14,7 +14,6 @@
     + project/src/wxresource   
 + uni-app项目打包输出之后在主小程序项目中的目录  
     + uniSubpackage (可进行配置修改)  
-    
 
 #### 脚手架结构 
 与普通uni-app项目的结构保持一致
@@ -29,7 +28,7 @@
 ├─dist
 │  └─dev
 │      ├─mp-weixin                          // uni-app微信小程序普通构建目录
-│      └─mp-weixin-subpackage-project       // uni-app微信小程序解耦构建目录
+│      └─mp-weixin-pack       // uni-app微信小程序解耦构建目录
 ├─mainWeixinMp                              // 原生主小程序目录
 ├─public  
 └─src                                       // uni-app源码目录
@@ -49,6 +48,11 @@
     ├─wxcomponents
     └─wxresource                            // 原生页面及资源存放目录
 ``````   
+#### 开发模式  
++ 单独开发解耦包  
+在mainWeixinMp目录放置用于预览的原生小程序项目（hello world小程序即可），然后正常的在src中进行编码开发，解耦包打包完成后的包文件在dist/build/mp-weixin-pack/包名称  
++ 与完整小程序项目协同开发  
+此时mainWeixinMp目录应该是真实的小程序项目（建议关联真实小程序项目的git仓库，mainWeixinMp作为一个git子仓库的存在），构建打包完成后即可将打包后内容(dist/build/mp-weixin-pack)覆盖mainWeixinMp的内容进行子仓库提交
 
 #### 安装  
 ````  

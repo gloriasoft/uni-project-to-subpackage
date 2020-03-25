@@ -1,6 +1,6 @@
 /*
 * 作者devilwjp（天堂里的花大咩）
-* 2019年7月
+* 2019年9月
 * 解决的问题：一切不能输出分包的小程序开发框架，都是耍流氓！
 * 思路：在uni-app打包完之后，再进行一次打包，再次打包不可使用webpack，使用gulp进行文件流级别的处理，解除uni对于app.js的依赖，以及解除对Page和Component的劫持
 * 由于是解耦包，所以不会在app.js中留存任何uni的痕迹，可做到整个uni项目不依赖于主包运行
@@ -29,7 +29,7 @@ if(process.env.NODE_ENV === 'production'){
 }
 
 const base='dist/'+env+'/mp-weixin'
-const target='dist/'+env+'/mp-weixin-subpackage-project'
+const target='dist/'+env+'/mp-weixin-pack'
 const basePath=path.resolve(__dirname,base)
 let subModePath
 let writeTimer
@@ -114,9 +114,58 @@ function mergeToTargetJson(type){
         }catch(e){
             mainJson={}
         }
+
         // 处理subpackage路径拼接
         function addSubPackagePath(pagePath){
             return projectToSubPackageConfig.subPackagePath+'/'+pagePath
+        }
+
+        // 判断主小程序的AppJson中是否把uni项目设为了分包
+        if(mainJson.subPackages){
+            let pack=mainJson.subPackages.find((pack)=>{
+                return pack.root === projectToSubPackageConfig.subPackagePath
+            })
+            if(pack){
+                // 要将uni项目里所有的pages和subPackages里的pages合并到主小程序uni分布设置的subPackages的pages里
+                let tempAppSubPackgages=[
+                    // pages直接使用
+                    ...config.wxResource && config.wxResource.pages || [],
+                    ...appJson.pages||[]
+                ]
+                // 处理subPackages
+                if(appJson.subPackages){
+                    appJson.subPackages.forEach((pack)=>{
+                        tempAppSubPackgages=[
+                            ...tempAppSubPackgages,
+                            // 拼接上root
+                            ...(pack.pages||[]).map((page)=>{
+                                return pack.root+'/'+page
+                            })
+                        ]
+                    })
+                }
+                //处理
+                if(config.wxResource && config.wxResource.subPackages){
+                    config.wxResource.subPackages.forEach((pack)=>{
+                        tempAppSubPackgages=[
+                            ...tempAppSubPackgages,
+                            // 拼接上root
+                            ...(pack.pages||[]).map((page)=>{
+                                return pack.root+'/'+page
+                            })
+                        ]
+                    })
+                }
+                pack.pages=tempAppSubPackgages
+
+                // 删除pages和subPackages之后合并其他的属性
+                delete appJson.pages
+                delete appJson.subPackages
+                return JSON.stringify({
+                    ...appJson,
+                    ...mainJson
+                })
+            }
         }
 
         if(appJson.pages){
