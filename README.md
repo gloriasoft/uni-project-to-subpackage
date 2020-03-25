@@ -2,7 +2,7 @@
 #### 对uni-app在微信小程序的打包方案进行改造，形成解耦打包，并且支持微信原生页面直接在uni-app项目中使用  
 + 可以使uni-app项目输出微信小程序的分包，被其他小程序项目使用  
 + 支持微信原生页面直接在uni-app项目中使用（还支持任何原生的js、wxss在uni-app项目中使用）  
-+ 支持原生小程序项目直接在uni-app项目中进行开发，当uni-app的解耦包是该原生小程序的主包时，uni-app包可以通过globalData进行方法公开，被原生小程序的其他页面和分包使用  
++ 支持原生小程序项目直接在uni-app项目中进行开发，uni-app包可以通过globalData进行方法公开，被原生小程序的其他页面和分包使用  
 + 支持uni-app项目调用原生小程序项目中的资源   
 
 #### 概念 
@@ -55,6 +55,7 @@
 此时mainWeixinMp目录应该是真实的小程序项目（建议关联真实小程序项目的git仓库，mainWeixinMp作为一个git子仓库的存在），构建打包完成后即可将打包后内容(dist/build/mp-weixin-pack)覆盖mainWeixinMp的内容进行子仓库提交
 
 #### 安装  
+拉下项目后进行安装  
 ````  
 npm i
 ````  
@@ -123,6 +124,20 @@ uni.navigateTo({
 })
 ````  
 #### pages.json、主小程序的app.json混合处理  
++ 设置uni项目为分包  
+需要在主小程序的app.json里配置分包的root，并且pages设置为[]  
+构建时会把uni项目中的所有pages和subPackages中的pages都合并到预览目录中app.json的uni分包配置的pages里
+````json
+  // mainWeixinMp app.json
+  "subPackages":[{
+    "root":"uniSubpackage",
+    "pages":[]
+  }]
+````  
++ 设置uni项目为主包并配置目录下的一些资源为分包  
+在uni项目的pages.json里设置pages和subPackages  
++ 在uni项目中设置wxresource中的pages和subPackages  
+需要在uni项目中的pages.json中的wxResource中配置pages和subPackages  
 
 #### 其他  
 如果原生主小程序目录中已经存在了同uni解耦包命名相同的目录，在构建时，这个目录将被忽略，构建后的项目中的此目录是uni项目生成的解耦包
