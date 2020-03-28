@@ -15,17 +15,13 @@
     "list": [{
       "pagePath": "pages/index/index",
       "text": "原生主项目页面",
-      "iconPath": "uniSubpackage/static/uni.png",
-      "selectedIconPath": "uniSubpackage/static/uni.png"
+      "iconPath": "mp_logo.png",
+      "selectedIconPath": "mp_logo.png"
     }, {
-      "pagePath": "pages/index/index",
-      "text": "uni项目页面",
+      "pagePath": "uniSubpackage/pages/about/about",
+      "text": "uni解耦包的页面",
       "iconPath": "uniSubpackage/static/uni.png",
       "selectedIconPath": "uniSubpackage/static/uni.png"
     }]
-  },
-  "subPackages":[{
-    "root":"uniSubpackage",
-    "pages":[]
-  }]
+  }
 }

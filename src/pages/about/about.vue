@@ -1,18 +1,15 @@
 <template>
 	<view class="about test-background">
 		<view class="content">
-			<view class="qrcode">
-				<image src="https://img.cdn.aliyun.dcloud.net.cn/guide/uniapp/app_download.png" @longtap="save"></image>
-				<text class="tip">扫码体验uni-app</text>
-			</view>
-			<view class="desc">
-				<text class="code">uni-app</text>
-				是一个使用 <text class="code">Vue.js</text> 开发跨平台应用的前端框架。
-			</view>
 			<view class="source">
 				<view class="title" style="font-weight:900">此项目是uni-app的微信小程序解耦构建示例项目，可以将uni-app项目打包成为一个解耦包，集成到任何一个原生小程序项目中</view>
+				<view class="title" style="font-weight:900;color:darkred">在原来uni项目的基础上，使用uniapp2wxpack的cli升级成解耦构造的微信小程序项目</view>
+				<view style="font-weight: 900;font-size:50rpx">
+					此页面是uni项目的vue页面
+				</view>
 			</view>
-			<button @click="toNative">跳转到一个uni项目自身的原生小程序页面</button>
+			<button @click="toNative(pagePath.nativeInUni)">跳转到一个uni项目自身的原生小程序页面</button>
+			<button @click="toNative(pagePath.mainMpIndex,true)">跳转主小程序的index</button>
 		</view>
 	</view>
 </template>
@@ -27,16 +24,24 @@
 		data() {
 			return {
 				providerList: [],
-				version: ''
+				version: '',
+				pagePath:{
+				    nativeInUni:packPath+'/nativePage/index',
+					mainMpIndex:'/pages/index/index'
+				}
 			}
 		},
 		onLoad() {
 
 		},
 		methods: {
-		    toNative(){
+		    toNative(url, isTabBar){
+		        if(isTabBar){
+		            uni.switchTab({url})
+					return
+				}
 		        uni.navigateTo({
-					url:packPath+'/nativePage/index'
+					url
 				})
 			}
 		}
@@ -46,8 +51,8 @@
 <style>
 	/*引入原生微信小程序wxss*/
 	__uniWxss{
-		@import: '@wxResource/nativePage/index.wxss';
 		@import: '@wxResource/nativeCommon/test.wxss';
+		@import: '@wxResource/nativeCommon/test1.wxss';
 	}
 
 	page,
