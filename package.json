@@ -35,7 +35,7 @@
     "cross-env": "^7.0.2",
     "flyio": "^0.6.2",
     "regenerator-runtime": "^0.12.1",
-    "uniapp2wxpack": "^1.2.0",
+    "uniapp2wxpack": "^1.3.1",
     "vue": "^2.6.10",
     "vuex": "^3.0.1"
   },
@@ -52,6 +52,8 @@
     "@vue/cli-plugin-babel": "3.5.1",
     "@vue/cli-service": "^3.9.0",
     "babel-plugin-import": "^1.11.0",
+    "node-sass": "^4.13.0",
+    "postcss-comment": "^2.0.0",
     "sass-loader": "^8.0.0",
     "vue-template-compiler": "^2.6.10"
   },
