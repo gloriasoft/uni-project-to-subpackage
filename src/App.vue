@@ -1,33 +1,13 @@
 <script>
+    /*
+    * App.vue在解耦构建的模式种，并不会被执行，这是因为uni项目只是作为一个包被引入到主小程序项目中
+    * 主小程序的原生app.js才是入口文件，是否执行uni项目的App.vue是由整个小程序的管理者决定
+    * App.vue的对象会被保存在wx.__uniapp2wxpack.uniSubpackage.__packInit中
+    * 主小程序的原生app.js可以自己选择在合适的时候去使用App.vue中的方法和数据
+    * */
     export default {
         onLaunch: function() {
             console.log('App Launch');
-            // #ifdef APP-PLUS
-            // 检测升级
-            uni.request({
-                url: 'https://uniapp.dcloud.io/update', //检查更新的服务器地址
-                data: {
-                    appid: plus.runtime.appid,
-                    version: plus.runtime.version,
-                    imei: plus.device.imei
-                },
-                success: (res) => {
-                    if (res.statusCode == 200 && res.data.isUpdate) {
-                        let openUrl = plus.os.name === 'iOS' ? res.data.iOS : res.data.Android;
-                        // 提醒用户更新
-                        uni.showModal({
-                            title: '更新提示',
-                            content: res.data.note ? res.data.note : '是否选择更新',
-                            success: (showResult) => {
-                                if (showResult.confirm) {
-                                    plus.runtime.openURL(openUrl);
-                                }
-                            }
-                        })
-                    }
-                }
-            })
-            // #endif
         },
         onShow: function() {
             console.log('App Show')
@@ -36,50 +16,10 @@
             console.log('App Hide')
         },
 		globalData: {
-			test: ''
+			test: 'Hello! I am the globalData from App.vue'
 		}
     }
 </script>
 
 <style>
-    /* #ifndef APP-PLUS-NVUE */
-    /* uni.css - 通用组件、模板样式库，可以当作一套ui库应用 */
-    /*@import './common/uni.css';*/
-
-    /* 以下样式用于 hello uni-app 演示所需 */
-    page {
-        background-color: #F4F5F6;
-        height: 100%;
-        font-size: 28upx;
-        line-height: 1.8;
-    }
-
-    .uni-header-logo {
-        padding: 30upx;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        margin-top: 10upx;
-    }
-
-    .uni-header-image {
-        width: 100px;
-        height: 100px;
-    }
-
-    .uni-hello-text {
-        color: #7A7E83;
-    }
-
-    .uni-hello-addfile {
-        text-align: center;
-        line-height: 300upx;
-        background: #FFF;
-        padding: 50upx;
-        margin-top: 10px;
-        font-size: 38upx;
-        color: #808080;
-    }
-
-    /* #endif*/
 </style>

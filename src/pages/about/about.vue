@@ -8,8 +8,10 @@
 					此页面是uni项目的vue页面
 				</view>
 			</view>
-			<button @click="toNative(pagePath.nativeInUni)">跳转到一个uni项目自身的原生小程序页面</button>
-			<button @click="toNative(pagePath.mainMpIndex,true)">跳转主小程序的index</button>
+			<button @click="toNative(packPath+'/nativePage/index')">跳转到一个uni项目自身的原生小程序页面</button>
+			<button @click="toNative('/pages/logs/logs')">跳转主小程序的log页面</button>
+			<button @click="toNative(packPath+'/pages/test/about')">test联合分包中的vue页面</button>
+			<button @click="toNative(packPath+'/pages/test/index')">test联合分包中的原生页面</button>
 		</view>
 	</view>
 </template>
@@ -25,10 +27,7 @@
 			return {
 				providerList: [],
 				version: '',
-				pagePath:{
-				    nativeInUni:packPath+'/nativePage/index',
-					mainMpIndex:'/pages/index/index'
-				}
+				packPath
 			}
 		},
 		onLoad() {
@@ -48,11 +47,11 @@
 	}
 </script>
 
-<style>
+<style lang="scss">
 	/*引入原生微信小程序wxss*/
 	__uniWxss{
-		@import: '@wxResource/nativeCommon/test.wxss';
-		@import: '@wxResource/nativeCommon/test1.wxss';
+		import: '@wxResource/nativeCommon/test.wxss';
+		import: '@wxResource/nativeCommon/test1.wxss';
 	}
 
 	page,

@@ -1,3 +1,8 @@
+
+__uniWxss{
+  import:'@wxResource/nativeCommon/test1.wxss';
+  import:'@wxResource/nativeCommon/test.wxss';
+}
 /**index.wxss**/
 .userinfo {
   display: flex;

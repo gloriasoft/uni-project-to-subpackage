@@ -5,24 +5,22 @@
 		{
 			"path": "pages/about/about",
 			"style": {
-				"navigationBarTitleText": "测试",
-				"app-plus": {
-					"bounce": "vertical",
-					"titleNView": {
-						"buttons": [{
-							"text": "\ue534",
-							"fontSrc": "/static/uni.ttf",
-							"fontSize": "22px",
-							"color": "#FFFFFF"
-						}]
-					}
-				}
+				"navigationBarTitleText": "测试"
 			}
 		}
 	],
+	"subPackages":[{
+		"root": "pages/test",
+		"pages": [{
+			"path": "about",
+			"style": {
+				"navigationBarTitleText": "测试"
+			}
+		}]
+	}],
 	"wxResource":{
 		"subPackages":[{
-			"root": "nativePage",
+			"root": "pages/test",
 			"pages": ["index"]
 		}]
 	}

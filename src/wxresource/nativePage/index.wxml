@@ -4,3 +4,9 @@
   要在uni项目中使用原生的页面和其他资源（js和wxss等），需要将资源放在src/wxresource目录里<br/>
   并且在pages.json里配置wxResource的pages
 </view>
+<view style="margin-top:50rpx">
+  App.vue的对象保存在wx.__uniapp2wxpack.uniSubpackage.__packInit
+</view>
+<view style="color:darkred;font-weight: 900">
+  {{uniapp2wxpack.uniSubpackage.__packInit.globalData.test}}
+</view>

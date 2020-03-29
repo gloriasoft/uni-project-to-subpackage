@@ -1,0 +1,4 @@
+<!--index.wxml-->
+<view class="container">
+  联合分包中的 原生 test页面
+</view>
