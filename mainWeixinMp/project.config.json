@@ -16,7 +16,7 @@
 	},
 	"compileType": "miniprogram",
 	"libVersion": "2.10.3",
-	"appid": "wxc405ee8d14023c42",
+	"appid": "appid",
 	"projectname": "mp_weixin1",
 	"debugOptions": {
 		"hidedInDevtools": []
