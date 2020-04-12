@@ -8,7 +8,12 @@
 
 <script>
 	// 引入原生微信小程序资源（什么都可以引）
-	let {packPath} =__uniRequireWx('@wxResource/pack.config.js')
+    //#ifdef MP-WEIXIN-PACK
+    let {packPath} =__uniRequireWx('@wxResource/pack.config.js')
+    //#endif
+    //#ifndef MP-WEIXIN-PACK
+    let packPath = ''
+    //#endif
 
 	export default {
 		components: {

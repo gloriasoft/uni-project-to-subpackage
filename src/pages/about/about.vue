@@ -8,17 +8,30 @@
 					此页面是uni项目的vue页面
 				</view>
 			</view>
+			<!-- #ifdef MP-WEIXIN-PACK -->
 			<button @click="toNative(packPath+'/nativePage/index')">跳转到一个uni项目自身的原生小程序页面</button>
+			<!--#endif-->
+			<!-- #ifdef MP-WEIXIN-PACK -->
 			<button @click="toNative('/pages/logs/logs')">跳转主小程序的log页面</button>
+			<!--#endif-->
 			<button @click="toNative(packPath+'/pages/test/about')">test联合分包中的vue页面</button>
+			<!-- #ifdef MP-WEIXIN-PACK -->
 			<button @click="toNative(packPath+'/pages/test/index')">test联合分包中的原生页面</button>
+			<!--#endif-->
 		</view>
 	</view>
 </template>
 
 <script>
 	// 引入原生微信小程序资源（什么都可以引）
+	//#ifdef MP-WEIXIN-PACK
+	console.log(11111)
 	let {packPath} =__uniRequireWx('@wxResource/pack.config.js')
+	//#endif
+    //#ifndef MP-WEIXIN-PACK
+	console.log(22222)
+    let packPath = ''
+    //#endif
 
 	export default {
 		components: {
@@ -49,10 +62,12 @@
 
 <style lang="scss">
 	/*引入原生微信小程序wxss*/
+	/*#ifdef MP-WEIXIN-PACK*/
 	__uniWxss{
 		import: '@wxResource/nativeCommon/test.wxss';
 		import: '@wxResource/nativeCommon/test1.wxss';
 	}
+	/*#endif*/
 
 	page,
 	view {
