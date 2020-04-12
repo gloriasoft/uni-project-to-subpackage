@@ -1,5 +1,6 @@
 <template>
 	<view class="about test-background">
+		<view class="img-test"></view>
 		<view class="content">
 			<view class="source">
 				<view class="title" style="font-weight:900">此项目是uni-app的微信小程序解耦构建示例项目，可以将uni-app项目打包成为一个解耦包，集成到任何一个原生小程序项目中</view>
@@ -68,6 +69,12 @@
 		import: '@wxResource/nativeCommon/test1.wxss';
 	}
 	/*#endif*/
+
+	.img-test{
+		width:200rpx;
+		height:200rpx;
+		background: url(../../static/uni.png);
+	}
 
 	page,
 	view {
