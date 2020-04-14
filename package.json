@@ -37,7 +37,8 @@
     "cross-env": "^7.0.2",
     "flyio": "^0.6.2",
     "regenerator-runtime": "^0.12.1",
-    "uni-pages-hot-modules": "0.0.1",
+    "uni-hold-tabbar": "^1.0.0",
+    "uni-pages-hot-modules": "^0.0.10",
     "uniapp2wxpack": "^2.2.4",
     "vue": "^2.6.10",
     "vuex": "^3.0.1"
@@ -72,7 +73,7 @@
         "title": "微信小程序解耦构建",
         "env": {
           "UNI_PLATFORM": "mp-weixin",
-          "ABC":1212
+          "ABC": 1212
         },
         "define": {
           "MP-WEIXIN-PACK": true

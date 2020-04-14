@@ -26,11 +26,9 @@
 <script>
 	// 引入原生微信小程序资源（什么都可以引）
 	//#ifdef MP-WEIXIN-PACK
-	console.log(11111)
 	let {packPath} =__uniRequireWx('@wxResource/pack.config.js')
 	//#endif
     //#ifndef MP-WEIXIN-PACK
-	console.log(22222)
     let packPath = ''
     //#endif
 
@@ -44,18 +42,18 @@
 				packPath
 			}
 		},
-		onLoad() {
-
-		},
 		methods: {
 		    toNative(url, isTabBar){
 		        if(isTabBar){
 		            uni.switchTab({url})
 					return
 				}
-		        uni.navigateTo({
-					url
+				this.$Router.push({
+					path:url
 				})
+		        // uni.navigateTo({
+				// 	url
+				// })
 			}
 		}
 	}

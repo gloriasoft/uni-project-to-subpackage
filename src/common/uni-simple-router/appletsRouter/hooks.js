@@ -3,12 +3,12 @@ import {callAppHook,getPageVmOrMp,ruleToUniNavInfo,formatTo,formatFrom} from './
 import {appletsUniPushTo} from "./appletsNav";
 import {noop} from '../helpers/util'
 import {warn} from '../helpers/warn'
-
+import uniapp2wxpackHack from '../uniapp2wxpackHack'
 
 /**
- * 还原并执行所有 拦截下来的生命周期 app.vue 及 index 下的生命周期 
+ * 还原并执行所有 拦截下来的生命周期 app.vue 及 index 下的生命周期
  * @param {Boolean} callHome // 是否触发首页的生命周期
- * 
+ *
  * this 为当前 page 对象
  */
 const callwaitHooks= function(callHome){
@@ -33,7 +33,7 @@ const callwaitHooks= function(callHome){
 		}
 		for(let key in waitHooks){	//还原 首页下的生命钩子
 			const item=waitHooks[key];
-			if(item.isHijack){	
+			if(item.isHijack){
 				if(variationFuns.includes(key)){	//变异方法
 					variation.push({key,fun:item.fun[0]});
 				}else{
@@ -61,7 +61,7 @@ const callVariationHooks=function(variation){
 }
 /**
  * 主要是对app.vue下onLaunch和onShow生命周期进行劫持
- * 
+ *
  * this 为当前 page 对象
  */
 export const proxyLaunchHook=function(){
@@ -80,7 +80,7 @@ export const proxyLaunchHook=function(){
 		uniAppHook.onShow.isHijack=true;
 		uniAppHook.onShow.fun=onShow.splice(onShow.length-1,1,arg=>{
 			uniAppHook.onShow.args=arg;
-			if(uniAppHook.pageReady){		//因为还有app切前台后台的操作
+			if(uniAppHook.pageReady && !uniapp2wxpackHack.catchOnLoad){		//因为还有app切前台后台的操作
 				callAppHook.call(this,uniAppHook.onShow.fun,arg)
 			}
 		})	//替换替换 都替换
@@ -109,7 +109,7 @@ export const appletsProxyIndexHook=function(Router){
 /**
  * 主动触发导航守卫
  * @param {Object} Router 当前路由对象
- * 
+ *
  */
 export const triggerLifeCycle = function(Router) {
 	const topPage=getCurrentPages()[0];
@@ -128,16 +128,16 @@ export const triggerLifeCycle = function(Router) {
 		}
 		uniAppHook.pageReady=true;		//标致着路由已经就绪 可能准备起飞
 		callVariationHooks(variation);
-	});	
+	});
 }
 /**
  * 核心方法 处理一系列的跳转配置
  * @param {Object} rule 当前跳转规则
  * @param {Object} fnType 跳转页面的类型方法
  * @param {Object} navCB:? 回调函数
- * 
+ *
  * this 为当前 Router 对象
- * 
+ *
  */
 export const appletsTransitionTo =async function(rule, fnType, navCB){
 	await this.lifeCycle["routerbeforeHooks"][0].call(this) //触发内部跳转前的生命周期
@@ -160,7 +160,7 @@ export const appletsTransitionTo =async function(rule, fnType, navCB){
  * 触发全局beforeHooks 生命钩子
  * @param {Object} _from // from  参数
  * @param {Object} _to  // to 参数
- * 
+ *
  * this 为当前 Router 对象
  */
 const beforeHooks = function(_from,_to){
@@ -176,7 +176,7 @@ const beforeHooks = function(_from,_to){
  * 触发全局afterEachHooks 生命钩子
  * @param {Object} _from // from  参数
  * @param {Object} _to  // to 参数
- * 
+ *
  * this 为当前 Router 对象
  */
 const afterEachHooks=function(_from,_to){
@@ -190,7 +190,7 @@ const afterEachHooks=function(_from,_to){
  * @param {Object} finalRoute 	// 当前格式化后的路由参数
  * @param {Object} _from // from  参数
  * @param {Object} _to  // to 参数
- * 
+ *
  * this 为当前 Router 对象
  */
 const beforeEnterHooks =function(finalRoute,_from,_to){
@@ -205,13 +205,13 @@ const beforeEnterHooks =function(finalRoute,_from,_to){
 
 /**
  * 验证当前 next() 管道函数是否支持下一步
- * 
+ *
  * @param {Object} Intercept 拦截到的新路由规则
  * @param {Object} fnType 跳转页面的类型方法 原始的
  * @param {Object} navCB 回调函数 原始的
- * 
+ *
  * this 为当前 Router 对象
- * 
+ *
  */
 const isNext =function(Intercept,fnType, navCB){
 	return new Promise((resolve,reject)=>{
