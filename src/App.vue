@@ -22,4 +22,10 @@
 </script>
 
 <style>
+    /*__uniWxss{*/
+        /*import: '/static/test.wxss';*/
+    /*}*/
+    /*view,.aabbcc{*/
+        /*background: red;*/
+    /*}*/
 </style>
