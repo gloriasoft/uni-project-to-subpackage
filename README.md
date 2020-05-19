@@ -10,7 +10,11 @@
   
 + 支持uni-app项目调用原生小程序项目中的资源   
   
-+ 对uni包的App.vue的特殊处理方式（详见appMode）
++ 对uni包的App.vue的特殊处理方式（详见appMode）  
+
++ 支持微信小程序插件的开发模式（[详见小程序插件项目示例](https://github.com/devilwjp/uni-project-to-plugin)）
+  
+### [点击进入解耦开发项目示例](https://github.com/devilwjp/uni-project-to-subpackage)  
 
 ### 快速上手  
 #### 第一步  
@@ -46,7 +50,7 @@ uniapp2wxpack --create
 ````  
 + 会在项目中创建projectToSubPackageConfig.js  
 + 创建mainWeixinMp目录（可根据projectToSubPackageConfig.js的配置修改目录名）  
-+ 在package.json中会生成dev:mp-weixin-pack和build:mp-weixin-pack的命令  
++ 在package.json中会生成dev:mp-weixin-pack和build:mp-weixin-pack的命令(3.0以后还会生成用于插件开发的命令)  
 
 ### 概念 
 + uni-app项目目录   
@@ -116,7 +120,9 @@ module.exports={
     // uni项目输出的分包在微信原生小程序中的路径
     subPackagePath: 'uniSubpackage',
     // uni项目的App.vue中初始设置的处理方式，默认是relegation(降级模式)，[top(顶级模式) / none(丢弃)]
-    appMode: 'relegation'
+    appMode: 'relegation',
+    // 如果微信原生小程序目录中的目录名称合uni项目输出的目录名相同，是否融合处理，默认不融合处理，直接忽略原生小程序里的目录，merge以uni项目优先
+    mergePack: false
 }
 ````   
 
