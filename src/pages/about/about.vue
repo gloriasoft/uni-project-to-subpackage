@@ -1,5 +1,6 @@
 <template>
 	<view class="about test-background">
+		<text>{{test.msg}}</text>
 		<view class="img-test"></view>
 		<view class="content">
 			<view class="source">
@@ -16,7 +17,9 @@
 		</view>
 	</view>
 </template>
-
+<wxs module="test">
+	__uniRequireWx('@wxResource/../static/test.wxs')
+</wxs>
 <script>
 	// 引入原生微信小程序资源（什么都可以引）
 	let {packPath} =__uniRequireWx('@wxResource/pack.config.js')
