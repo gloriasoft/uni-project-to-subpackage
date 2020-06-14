@@ -29,6 +29,6 @@ module.exports={
     plugins: [
         'polyfillPlugin', // 对一些js方法的polyfill
         'htmlMixinPlugin', // html混写
-        'cssMxinPlugin' // css混写
+        'cssMixinPlugin' // css混写
     ]
 }
