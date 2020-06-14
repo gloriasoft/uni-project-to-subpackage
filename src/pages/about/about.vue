@@ -10,7 +10,7 @@
 					此页面是uni项目的vue页面
 				</view>
 			</view>
-			<button @click="toNative(packPath+'/nativePage/index')">跳转到一个uni项目自身的原生小程序页面</button>
+			<button @click="toNative(packPath+'/nativePage/index')">跳转到uni项目自身的原生小程序页面</button>
 			<button @click="toNative('/pages/logs/logs')">跳转主小程序的log页面</button>
 			<button @click="toNative(packPath+'/pages/test/about')">test联合分包中的vue页面</button>
 			<button @click="toNative(packPath+'/pages/test/index')">test联合分包中的原生页面</button>

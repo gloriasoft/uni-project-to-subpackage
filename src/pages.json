@@ -19,6 +19,9 @@
 		}]
 	}],
 	"wxResource":{
+		"pages": [
+			"nativePage/index"
+		],
 		"subPackages":[{
 			"root": "pages/test",
 			"pages": ["index"]
