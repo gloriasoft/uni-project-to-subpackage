@@ -27,6 +27,10 @@ module.exports={
     configWxResourceKey: null,
     // 插件
     plugins: [
+        // 条件编译插件应该在混写插件之前使用
+        'jsPreProcessPlugin', // js条件编译
+        'cssPreProcessPlugin', // css条件编译
+        'htmlPreProcessPlugin', // html条件编译
         'polyfillPlugin', // 对一些js方法的polyfill
         'htmlMixinPlugin', // html混写
         'cssMixinPlugin' // css混写
