@@ -1,5 +1,6 @@
 <template>
 	<view class="about test-background">
+		<text :class="[`a${ccc} b${ccc}`]">store:{{testStore}}</text>
 		<text>{{test.msg}}</text>
 		<view class="img-test"></view>
 		<view class="content">
@@ -25,13 +26,19 @@
 	let {packPath} =__uniRequireWx('@wxResource/pack.config.js')
 
 	export default {
+	    computed: {
+	        testStore () {
+	            return this.$store.state.test
+			}
+		},
 		components: {
 		},
 		data() {
 			return {
 				providerList: [],
 				version: '',
-				packPath
+				packPath,
+				ccc:'aa'
 			}
 		},
 		onLoad() {
@@ -52,6 +59,11 @@
 </script>
 
 <style lang="scss">
+	.aaa{
+		color:red
+	}
+
+
 	/*引入原生微信小程序wxss*/
 	__uniWxss{
 		import: '@wxResource/nativeCommon/test.wxss';

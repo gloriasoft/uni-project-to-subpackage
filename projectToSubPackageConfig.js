@@ -33,6 +33,6 @@ module.exports={
         'htmlPreProcessPlugin', // html条件编译
         'polyfillPlugin', // 对一些js方法的polyfill
         'htmlMixinPlugin', // html混写
-        'cssMixinPlugin' // css混写
+        'cssMixinPlugin', // css混写
     ]
 }

@@ -5,6 +5,7 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
 	state: {
+		test:'xxxxxxxx',
 		hasLogin: false,
 		loginProvider: "",
 		openid: null,
