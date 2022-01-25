@@ -6,8 +6,8 @@
     * 主小程序的原生app.js可以自己选择在合适的时候去使用App.vue中的方法和数据
     * */
     export default {
-        onLaunch: function() {
-            console.log('App Launch');
+        onLaunch: function(a) {
+            console.log('App Launch', a);
         },
         onShow: function() {
             console.log('App Show')
