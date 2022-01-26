@@ -8,6 +8,11 @@ Page({
     hasUserInfo: false,
     canIUse: wx.canIUse('button.open-type.getUserInfo')
   },
+  aaa: function () {
+    wx.navigateTo({
+      url: '/uniSubpackage/pages/test/about'
+    })
+  },
   //事件处理函数
   bindViewTap: function() {
     wx.navigateTo({
