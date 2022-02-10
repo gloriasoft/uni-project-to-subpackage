@@ -67,7 +67,7 @@
     "concurrently": "^5.3.0",
     "core-js": "^3.6.5",
     "flyio": "^0.6.2",
-    "node-sass": "^4.14.1",
+    "node-sass": "^7.0.0",
     "regenerator-runtime": "^0.12.1",
     "sass-loader": "^10.0.1",
     "uniapp2wxpack": "^3.3.26",
